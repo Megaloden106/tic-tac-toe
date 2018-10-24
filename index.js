@@ -9,6 +9,7 @@ class App {
     ];
     this.turns = 0;
     this.players = ['X', 'O'];
+    this.winOrDraw = false;
   }
 
   buildPromptBoard() {
@@ -23,12 +24,40 @@ class App {
   }
 
   updateGameState(num) {
+    if (num < 1 || num > 9) {
+      console.error('INVALID MOVE!');
+      return;
+    }
     const i = Math.floor((num - 1) / 3);
     const j = (num - 1) % 3;
-    if (this.gameBoard[i][j] === parseInt(num)) {
-      console.log('PLACE');
+    if (this.gameBoard[i][j] === Number(num)) {
       this.gameBoard[i][j] = this.players[this.turns % 2];
+      this.checkWinOrDrawState(i, j);
       this.turns += 1;
+    }
+  }
+
+  checkRow(row) {
+    const player = this.players[this.turns % 2];
+    let result = true;
+    this.gameBoard[row].forEach((elem) => {
+      if (elem !== player) { result = false; }
+    });
+    return result;
+  }
+
+  checkWinOrDrawState(row, col) {
+    const player = this.players[this.turns % 2];
+    if (this.turns > 8) {
+      console.log('\nTIE GAME\n');
+      this.winOrDraw = true;
+    }
+    if (this.checkRow(row)
+      || this.checkCol(row)
+      || this.checkMajor(row)
+      || this.checkCol(row)) {
+      console.log(`\n${player} is the WINNER!!!\n`);
+      this.winOrDraw = true;
     }
   }
 
@@ -41,10 +70,11 @@ class App {
     const promptBoard = this.buildPromptBoard();
 
     rl.question(`\n${promptBoard}\n${this.players[this.turns % 2]} Turn, please press an available slot from 1-9: `, (answer) => {
-      // update game state
       this.updateGameState(answer);
       rl.close();
-      this.nextTurn();
+      if (!this.winOrDraw) {
+        this.nextTurn();
+      }
     });
   }
 }
