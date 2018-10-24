@@ -22,24 +22,29 @@ class App {
     return result;
   }
 
+  updateGameState(num) {
+    const i = Math.floor((num - 1) / 3);
+    const j = (num - 1) % 3;
+    if (this.gameBoard[i][j] === parseInt(num)) {
+      console.log('PLACE');
+      this.gameBoard[i][j] = this.players[this.turns % 2];
+      this.turns += 1;
+    }
+  }
+
   nextTurn() {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
 
-    // stingify game state
     const promptBoard = this.buildPromptBoard();
 
     rl.question(`\n${promptBoard}\n${this.players[this.turns % 2]} Turn, please press an available slot from 1-9: `, (answer) => {
       // update game state
-      const i = Math.floor((answer - 1) / 3);
-      const j = (answer - 1) % 3;
-      this.gameBoard[i][j] = this.players[this.turns];
-      this.turns += 1;
-      console.log(this.buildPromptBoard());
-      // this.nextTurn();
+      this.updateGameState(answer);
       rl.close();
+      this.nextTurn();
     });
   }
 }
